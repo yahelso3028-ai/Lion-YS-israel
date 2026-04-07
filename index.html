@@ -1,319 +1,624 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
+
 <html lang="he" dir="rtl">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <title>LION OS V18 - ZEN & SOUND</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+
     <style>
+
         :root {
+
             --p: #00f2ff; --s: #7000ff; --bg: #000; --card: #121218;
+
             --text: #fff; --danger: #ff0055; --success: #00ff88; --gold: #ffcc00;
+
             --border: rgba(255,255,255,0.1);
+
         }
+
         * { box-sizing: border-box; -webkit-font-smoothing: antialiased; font-family: 'Assistant', sans-serif; margin: 0; padding: 0; }
+
         body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; justify-content: center; }
+
         .lion-os { width: 100%; max-width: 500px; height: 100vh; position: relative; display: flex; flex-direction: column; background: #000; border: 1px solid var(--border); }
+
         
+
         /* כותרת */
+
         .header { padding: 15px; background: #050505; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; z-index: 10; }
+
         .lvl-badge { background: var(--p); color: #000; padding: 5px 12px; border-radius: 10px; font-weight: 900; }
+
         .xp-track { flex: 1; height: 12px; background: #111; border-radius: 20px; overflow: hidden; border: 1px solid #222; }
+
         .xp-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--p), var(--s)); transition: 0.5s; }
 
+
+
         /* תוכן */
+
         .main { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; position: relative; }
+
         .view { display: none; width: 100%; }
+
         .view.active { display: block; animation: fadeIn 0.3s ease; }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+
+
         /* אלמנטים */
+
         .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); }
+
         .btn { width: 100%; padding: 16px; border-radius: 15px; border: none; font-weight: 800; font-size: 1rem; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+
         .btn:active { transform: scale(0.97); }
+
         
+
         /* מים */
+
         .w-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
+
         .glass { background: rgba(255,255,255,0.05); height: 55px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; border: 1px solid transparent; }
+
         .glass.active { background: var(--p); color: #000; box-shadow: 0 0 15px var(--p); }
 
-        /* חדר רוגע */
+
+
+        /* חדר רוגע🫶🏼 */
+
         .zen-circle { width: 200px; height: 200px; border: 4px solid var(--p); border-radius: 50%; margin: 40px auto; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+
         .zen-fill { position: absolute; bottom: 0; width: 100%; background: rgba(0, 242, 255, 0.2); animation: wave 8s infinite ease-in-out; }
+
         .zen-label { font-weight: 800; color: var(--p); font-size: 1.5rem; z-index: 2; animation: breatheText 8s infinite ease-in-out; }
+
         
+
         @keyframes wave { 0%, 100% { height: 20%; } 50% { height: 80%; } }
+
         @keyframes breatheText { 
+
             0%, 100% { content: "נשיפה"; opacity: 0.5; }
+
             45%, 55% { opacity: 1; }
+
             50% { content: "שאיפה"; } 
+
         }
+
+
 
         /* ארקייד */
+
         .c-wrap { width: 100%; height: 320px; background: #050505; border-radius: 20px; position: relative; border: 2px solid #222; overflow: hidden; touch-action: none; }
+
         canvas { width: 100%; height: 100%; display: block; }
 
+
+
         /* ניווט */
+
         .nav { position: absolute; bottom: 0; width: 100%; height: 80px; background: #05050a; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border); z-index: 10; }
+
         .n-btn { opacity: 0.4; text-align: center; color: #fff; font-size: 0.8rem; font-weight: 800; flex: 1; cursor: pointer; }
+
         .n-btn.active { opacity: 1; color: var(--p); }
 
+
+
         /* אזעקה */
+
         .alert-view { position: fixed; inset: 0; background: #000; z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+
         .alert-view.active { display: flex; }
+
     </style>
+
 </head>
+
 <body>
 
+
+
 <div class="lion-os">
-    <audio id="relaxAudio" loop src="https://assets.mixkit.co/active_storage/sfx/2418/2418-preview.mp3"></audio>
+
+    <audio id="relaxAudio" loop src="https://www.soundjay.com/nature/rain-01.mp3"></audio>
+
+
 
     <div id="alertOverlay" class="alert-view">
+
         <h1 style="color:var(--danger); font-size:2.5rem; margin-bottom:20px;">אזעקה! 🚨</h1>
+
         <div id="runTime" style="font-size:5rem; font-family:'JetBrains Mono'; color:var(--danger)">90</div>
+
         <button class="btn" style="background:var(--success); color:#000;" onclick="mamadArrived()">הגעתי לממ"ד ✅</button>
+
         <div id="waitBox" style="display:none; margin-top:20px;">
+
             <div id="waitTime" style="font-size:3.5rem; color:var(--p); font-family:'JetBrains Mono'">10:00</div>
+
             <button class="btn" style="background:#fff; color:#000;" onclick="alertFinish()">אפשר לצאת</button>
+
         </div>
+
     </div>
+
+
 
     <div class="header">
+
         <div class="lvl-badge" id="lvlTag">1</div>
+
         <div class="xp-track"><div id="xpFill" class="xp-fill"></div></div>
+
         <div id="xpText" style="font-size:0.8rem; font-family:'JetBrains Mono'; min-width:60px;">0 נק'</div>
+
     </div>
+
+
 
     <div class="main">
+
         <div id="v-home" class="view active">
+
             <h2 style="color:var(--p); margin-bottom:15px;">ראשי 🦁</h2>
+
             <div class="card">
+
                 <div id="tipDisplay" style="min-height:45px; font-weight:800; margin-bottom:10px;">לחצי לקבלת טיפ...</div>
+
                 <div style="display:flex; gap:10px;">
+
                     <button class="btn" style="background:var(--p); color:#000; margin-top:0;" onclick="giveTip('daily')">טיפ יומי</button>
+
                     <button class="btn" style="background:var(--s); color:#fff; margin-top:0;" onclick="giveTip('stress')">טיפ ללחץ</button>
+
                 </div>
+
             </div>
+
             <div class="card">
+
                 <h3>שתיית מים: <span id="wPercent">0%</span></h3>
+
                 <div class="w-grid" id="waterGrid"></div>
+
             </div>
-            <button class="btn" style="background:var(--danger); color:#fff;" onclick="alertStart()">צבע אדום! 🚨</button>
+
+            <button class="btn" style="background:var(--danger); color:#fff;" onclick="alertStart()">צבע אדום! אזעקה!🚨</button>
+
         </div>
+
+
 
         <div id="v-zen" class="view">
+
             <h2 style="color:var(--p); text-align:center;">חדר רוגע 🧘‍♀️</h2>
+
             <div class="zen-circle">
+
                 <div class="zen-fill"></div>
+
                 <span class="zen-label" id="breathLabel">שאיפה</span>
+
             </div>
+
             <div class="card" style="text-align:center;">
+
                 <p id="zenQuote" style="margin-bottom:15px; font-style:italic;">"קחי נשימה עמוקה..."</p>
+
                 <button id="soundBtn" class="btn" style="background:var(--s); color:#fff;" onclick="toggleSound()">🔊 הפעל סאונד מרגיע</button>
+
             </div>
+
         </div>
+
+
 
         <div id="v-arcade" class="view">
+
             <h2 style="color:var(--gold); margin-bottom:15px;">משחקים 🎮</h2>
+
             <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin-bottom:20px;">
+
                 <div style="background:#111; aspect-ratio:1; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; border:1px solid var(--border); cursor:pointer;" onclick="gameInit('jump')">🏃</div>
+
                 <div style="background:#111; aspect-ratio:1; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; border:1px solid var(--border); cursor:pointer;" onclick="gameInit('pop')">🫧</div>
+
                 <div style="background:#111; aspect-ratio:1; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; border:1px solid var(--border); cursor:pointer;" onclick="gameInit('catch')">🍎</div>
+
                 <div style="background:#111; aspect-ratio:1; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; border:1px solid var(--border); cursor:pointer;" onclick="gameInit('avoid')">🚀</div>
+
             </div>
+
             <div class="c-wrap" id="canvasBox">
+
                 <div id="gameScore" style="position:absolute; top:10px; left:15px; font-weight:900; color:var(--p);">ניקוד: 0</div>
+
                 <canvas id="gameCanvas"></canvas>
+
             </div>
+
         </div>
+
     </div>
 
+
+
     <nav class="nav">
+
         <div class="n-btn active" onclick="changeView('v-home')">🏠<br>ראשי</div>
+
         <div class="n-btn" onclick="changeView('v-zen')">🧘‍♀️<br>רוגע</div>
+
         <div class="n-btn" onclick="changeView('v-arcade')">🎮<br>משחקים</div>
+
     </nav>
+
 </div>
 
+
+
 <script>
+
     let STATE = {
+
         xp: parseInt(localStorage.getItem('LION_XP') || '0'),
+
         water: 0,
+
         gameActive: false,
+
         soundOn: false
+
     };
+
+
 
     const canvas = document.getElementById('gameCanvas');
+
     const ctx = canvas.getContext('2d');
+
     let loop, objects = [], hero = {}, score = 0, gMode = '';
 
+
+
     function updateUI() {
+
         document.getElementById('lvlTag').innerText = Math.floor(STATE.xp / 1000) + 1;
+
         document.getElementById('xpFill').style.width = (STATE.xp % 1000) / 10 + "%";
+
         document.getElementById('xpText').innerText = STATE.xp + " נק'";
+
         document.getElementById('wPercent').innerText = Math.floor(STATE.water / 8 * 100) + "%";
+
         
+
         const grid = document.getElementById('waterGrid');
+
         grid.innerHTML = '';
+
         for(let i=0; i<8; i++) {
+
             const div = document.createElement('div');
+
             div.className = `glass ${i < STATE.water ? 'active' : ''}`;
+
             div.innerHTML = '🥛';
+
             div.onclick = () => {
+
                 if(i === STATE.water) {
+
                     STATE.water++; STATE.xp += 50;
+
                     if(STATE.water === 8) { alert("מדהים! שתית 2 ליטר!"); STATE.water = 0; }
+
                     updateUI();
+
                 }
+
             };
+
             grid.appendChild(div);
+
         }
+
         localStorage.setItem('LION_XP', STATE.xp);
+
     }
+
+
 
     function changeView(id) {
+
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+
         document.getElementById(id).classList.add('active');
+
         document.querySelectorAll('.n-btn').forEach((b, i) => {
+
             const ids = ['v-home', 'v-zen', 'v-arcade'];
+
             b.classList.toggle('active', ids[i] === id);
+
         });
+
         gameStop();
+
         if(id === 'v-zen') startBreatheCycle();
+
     }
+
+
 
     /* לוגיקת נשימות */
+
     function startBreatheCycle() {
+
         const label = document.getElementById('breathLabel');
+
         setInterval(() => {
+
             const now = Date.now() % 8000;
+
             if(now < 4000) label.innerText = "שאיפה";
+
             else label.innerText = "נשיפה";
+
         }, 100);
+
     }
 
-    /* סאונד - מתוקן */
+
+
+    /* סאונד */
+
     function toggleSound() {
+
         const audio = document.getElementById('relaxAudio');
+
         const btn = document.getElementById('soundBtn');
+
         if(!STATE.soundOn) {
-            audio.play().catch(e => console.log("Sound error:", e));
-            btn.innerText = "🔇 הפסק סאונד";
-            STATE.soundOn = true;
-        } else {
-            audio.pause();
-            btn.innerText = "🔊 הפעל סאונד מרגיע";
-            STATE.soundOn = false;
+
+         
         }
+
     }
+
+
 
     /* טיפים */
+
     const tips = {
-        daily: ["שתי כוס מים עכשיו","סדרי את המיטה שלך","חייכי לעצמך במראה","שלחי הודעה טובה למישהו"],
-        stress: ["נשמי עמוק 3 פעמים","שטפי פנים במים קרים","מתחי את הידיים למעלה"]
+
+        daily: ["שתי כוס מים עכשיו","סדרי את המיטה שלך","חייכי לעצמך במראה","שלחי הודעה טובה למישהו","תתנתקי קצת מהטלפון"],
+
+        stress: ["נשמי עמוק 3 פעמים","שטפי פנים במים קרים","מתחי את הידיים למעלה","תעשי ספורט","תכתבי סיכום יום עד כו"]
+
     };
+
     function giveTip(type) {
+
         const list = tips[type];
+
         document.getElementById('tipDisplay').innerText = list[Math.floor(Math.random()*list.length)];
+
         STATE.xp += 10; updateUI();
+
     }
+
+
 
     /* אזעקה */
+
     let tI, wI;
+
     function alertStart() {
+
         document.getElementById('alertOverlay').classList.add('active');
+
         let s = 90;
+
         tI = setInterval(() => {
+
             s--; document.getElementById('runTime').innerText = s;
+
             if(s<=0) clearInterval(tI);
+
         }, 1000);
+
     }
+
     function mamadArrived() {
+
         clearInterval(tI);
+
         document.getElementById('runTime').style.display = 'none';
+
         document.getElementById('waitBox').style.display = 'block';
+
         let s = 600;
+
         wI = setInterval(() => {
+
             s--; let m = Math.floor(s/60), sec = s%60;
+
             document.getElementById('waitTime').innerText = `${m}:${sec<10?'0'+sec:sec}`;
+
         }, 1000);
+
     }
+
     function alertFinish() {
+
         clearInterval(wI);
+
         document.getElementById('alertOverlay').classList.remove('active');
+
         document.getElementById('runTime').style.display = 'block';
+
         document.getElementById('waitBox').style.display = 'none';
+
         STATE.xp += 500; updateUI();
+
     }
+
+
 
     /* משחקים */
+
     function gameStop() { STATE.gameActive = false; cancelAnimationFrame(loop); }
+
     function gameInit(mode) {
+
         gameStop();
+
         const box = document.getElementById('canvasBox');
+
         canvas.width = box.clientWidth; canvas.height = box.clientHeight;
+
         STATE.gameActive = true; gMode = mode; score = 0; objects = [];
+
         hero = { x: canvas.width/2, y: canvas.height-50, w: 40, h: 40, dy: 0 };
+
         gameLoop();
+
     }
+
+
 
     function gameLoop() {
+
         if(!STATE.gameActive) return;
+
         ctx.clearRect(0,0,canvas.width,canvas.height);
+
         document.getElementById('gameScore').innerText = "ניקוד: " + score;
 
+
+
         if(gMode === 'jump') {
+
             hero.dy += 0.8; hero.y += hero.dy;
+
             if(hero.y > canvas.height-40) { hero.y = canvas.height-40; hero.dy = 0; }
+
             ctx.fillStyle = '#00f2ff'; ctx.fillRect(hero.x-20, hero.y, 40, 40);
+
             if(Math.random()<0.02) objects.push({x:canvas.width, y:canvas.height-40});
+
             objects.forEach((o,i) => {
+
                 o.x -= 5; ctx.fillStyle = 'red'; ctx.fillRect(o.x, o.y, 20, 40);
+
                 if(o.x < hero.x+20 && o.x+20 > hero.x-20 && o.y < hero.y+40) gameStop();
+
                 if(o.x < -30) { objects.splice(i,1); score++; STATE.xp+=5; updateUI(); }
+
             });
+
         }
+
         if(gMode === 'pop') {
+
             if(Math.random()<0.05) objects.push({x:Math.random()*canvas.width, y:canvas.height+20, r:25});
+
             objects.forEach((b,i) => {
+
                 b.y -= 3; ctx.strokeStyle = '#00f2ff'; ctx.lineWidth = 2;
+
                 ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2); ctx.stroke();
+
             });
+
         }
+
         if(gMode === 'catch') {
+
             ctx.fillStyle = '#00f2ff'; ctx.fillRect(hero.x-35, canvas.height-15, 70, 10);
+
             if(Math.random()<0.04) objects.push({x:Math.random()*canvas.width, y:-20});
+
             objects.forEach((o,i) => {
+
                 o.y += 4; ctx.fillStyle = 'gold'; ctx.beginPath(); ctx.arc(o.x, o.y, 10, 0, Math.PI*2); ctx.fill();
+
                 if(o.y > canvas.height-20 && Math.abs(o.x - hero.x) < 40) { objects.splice(i,1); score++; STATE.xp+=10; updateUI(); }
+
             });
+
         }
+
         if(gMode === 'avoid') {
+
             ctx.fillStyle = '#00f2ff'; ctx.beginPath(); ctx.arc(hero.x, hero.y, 15, 0, Math.PI*2); ctx.fill();
+
             if(Math.random()<0.06) objects.push({x:canvas.width, y:Math.random()*canvas.height});
+
             objects.forEach((o,i) => {
+
                 o.x -= 6; ctx.fillStyle = 'red'; ctx.beginPath(); ctx.arc(o.x, o.y, 10, 0, Math.PI*2); ctx.fill();
+
                 if(Math.hypot(hero.x-o.x, hero.y-o.y) < 25) gameStop();
+
             });
+
         }
+
         loop = requestAnimationFrame(gameLoop);
+
     }
+
+
 
     function handleTouch(e) {
+
         if(!STATE.gameActive) return;
+
         const rect = canvas.getBoundingClientRect();
+
         const t = e.touches ? e.touches[0] : e;
+
         const x = t.clientX - rect.left; const y = t.clientY - rect.top;
+
         if(gMode === 'jump' && hero.y >= canvas.height-45) hero.dy = -15;
+
         if(gMode === 'pop') objects.forEach((b,i) => { if(Math.hypot(b.x-x, b.y-y) < 40) { objects.splice(i,1); score++; updateUI(); } });
+
         hero.x = x; hero.y = y;
+
     }
 
+
+
     canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleTouch(e); }, {passive:false});
+
     canvas.addEventListener('touchmove', (e) => { e.preventDefault(); handleTouch(e); }, {passive:false});
+
     canvas.addEventListener('mousedown', handleTouch);
 
+
+
     updateUI();
+
 </script>
+
 </body>
-</html>
+
+</html>         
