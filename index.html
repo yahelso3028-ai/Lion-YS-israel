@@ -191,16 +191,24 @@
         }, 100);
     }
 
-    /* סאונד */
+    /* סאונד - גרסה עוקפת חסימות */
+    let audioInstance = null; 
+
     function toggleSound() {
-        const audio = document.getElementById('relaxAudio');
         const btn = document.getElementById('soundBtn');
+        
+        // אם זו הפעם הראשונה שלוחצים, ניצור את הסאונד מתוך הקוד
+        if (!audioInstance) {
+            audioInstance = new Audio("https://storage.googleapis.com/codeskulptor-assets/gihub_legit_sounds/rain.mp3");
+            audioInstance.loop = true;
+        }
+
         if(!STATE.soundOn) {
-            audio.play();
+            audioInstance.play().catch(e => console.log("טעינה נכשלה:", e));
             btn.innerText = "🔇 הפסק סאונד";
             STATE.soundOn = true;
         } else {
-            audio.pause();
+            audioInstance.pause();
             btn.innerText = "🔊 הפעל סאונד מרגיע";
             STATE.soundOn = false;
         }
