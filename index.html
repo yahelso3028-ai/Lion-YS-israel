@@ -1,9 +1,9 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LION OS V18 - ZEN & SOUND</title>
+    <title>LION OS V18 - ZEN MODE</title>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -15,29 +15,24 @@
         body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; justify-content: center; }
         .lion-os { width: 100%; max-width: 500px; height: 100vh; position: relative; display: flex; flex-direction: column; background: #000; border: 1px solid var(--border); }
         
-        /* כותרת */
         .header { padding: 15px; background: #050505; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; z-index: 10; }
         .lvl-badge { background: var(--p); color: #000; padding: 5px 12px; border-radius: 10px; font-weight: 900; }
         .xp-track { flex: 1; height: 12px; background: #111; border-radius: 20px; overflow: hidden; border: 1px solid #222; }
         .xp-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--p), var(--s)); transition: 0.5s; }
 
-        /* תוכן */
         .main { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; position: relative; }
         .view { display: none; width: 100%; }
         .view.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* אלמנטים */
         .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); }
         .btn { width: 100%; padding: 16px; border-radius: 15px; border: none; font-weight: 800; font-size: 1rem; cursor: pointer; margin-top: 10px; transition: 0.2s; }
         .btn:active { transform: scale(0.97); }
         
-        /* מים */
         .w-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
         .glass { background: rgba(255,255,255,0.05); height: 55px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; border: 1px solid transparent; }
         .glass.active { background: var(--p); color: #000; box-shadow: 0 0 15px var(--p); }
 
-        /* חדר רוגע */
         .zen-circle { width: 200px; height: 200px; border: 4px solid var(--p); border-radius: 50%; margin: 40px auto; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .zen-fill { position: absolute; bottom: 0; width: 100%; background: rgba(0, 242, 255, 0.2); animation: wave 8s infinite ease-in-out; }
         .zen-label { font-weight: 800; color: var(--p); font-size: 1.5rem; z-index: 2; animation: breatheText 8s infinite ease-in-out; }
@@ -49,16 +44,13 @@
             50% { content: "שאיפה"; } 
         }
 
-        /* ארקייד */
         .c-wrap { width: 100%; height: 320px; background: #050505; border-radius: 20px; position: relative; border: 2px solid #222; overflow: hidden; touch-action: none; }
         canvas { width: 100%; height: 100%; display: block; }
 
-        /* ניווט */
         .nav { position: absolute; bottom: 0; width: 100%; height: 80px; background: #05050a; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border); z-index: 10; }
         .n-btn { opacity: 0.4; text-align: center; color: #fff; font-size: 0.8rem; font-weight: 800; flex: 1; cursor: pointer; }
         .n-btn.active { opacity: 1; color: var(--p); }
 
-        /* אזעקה */
         .alert-view { position: fixed; inset: 0; background: #000; z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
         .alert-view.active { display: flex; }
     </style>
@@ -66,7 +58,6 @@
 <body>
 
 <div class="lion-os">
-   <audio id="relaxAudio" loop crossorigin="anonymous" src="https://storage.googleapis.com/codeskulptor-assets/gihub_legit_sounds/rain.mp3"></audio>
     <div id="alertOverlay" class="alert-view">
         <h1 style="color:var(--danger); font-size:2.5rem; margin-bottom:20px;">אזעקה! 🚨</h1>
         <div id="runTime" style="font-size:5rem; font-family:'JetBrains Mono'; color:var(--danger)">90</div>
@@ -108,7 +99,6 @@
             </div>
             <div class="card" style="text-align:center;">
                 <p id="zenQuote" style="margin-bottom:15px; font-style:italic;">"קחי נשימה עמוקה..."</p>
-                <button id="soundBtn" class="btn" style="background:var(--s); color:#fff;" onclick="toggleSound()">🔊 הפעל סאונד מרגיע</button>
             </div>
         </div>
 
@@ -138,8 +128,7 @@
     let STATE = {
         xp: parseInt(localStorage.getItem('LION_XP') || '0'),
         water: 0,
-        gameActive: false,
-        soundOn: false
+        gameActive: false
     };
 
     const canvas = document.getElementById('gameCanvas');
@@ -181,7 +170,6 @@
         if(id === 'v-zen') startBreatheCycle();
     }
 
-    /* לוגיקת נשימות */
     function startBreatheCycle() {
         const label = document.getElementById('breathLabel');
         setInterval(() => {
@@ -191,30 +179,6 @@
         }, 100);
     }
 
-    /* סאונד - גרסה עוקפת חסימות */
-    let audioInstance = null; 
-
-    function toggleSound() {
-        const btn = document.getElementById('soundBtn');
-        
-        // אם זו הפעם הראשונה שלוחצים, ניצור את הסאונד מתוך הקוד
-        if (!audioInstance) {
-            audioInstance = new Audio("https://storage.googleapis.com/codeskulptor-assets/gihub_legit_sounds/rain.mp3");
-            audioInstance.loop = true;
-        }
-
-        if(!STATE.soundOn) {
-            audioInstance.play().catch(e => console.log("טעינה נכשלה:", e));
-            btn.innerText = "🔇 הפסק סאונד";
-            STATE.soundOn = true;
-        } else {
-            audioInstance.pause();
-            btn.innerText = "🔊 הפעל סאונד מרגיע";
-            STATE.soundOn = false;
-        }
-    }
-
-    /* טיפים */
     const tips = {
         daily: ["שתי כוס מים עכשיו","סדרי את המיטה שלך","חייכי לעצמך במראה","שלחי הודעה טובה למישהו"],
         stress: ["נשמי עמוק 3 פעמים","שטפי פנים במים קרים","מתחי את הידיים למעלה"]
@@ -225,7 +189,6 @@
         STATE.xp += 10; updateUI();
     }
 
-    /* אזעקה */
     let tI, wI;
     function alertStart() {
         document.getElementById('alertOverlay').classList.add('active');
@@ -253,7 +216,6 @@
         STATE.xp += 500; updateUI();
     }
 
-    /* משחקים */
     function gameStop() { STATE.gameActive = false; cancelAnimationFrame(loop); }
     function gameInit(mode) {
         gameStop();
